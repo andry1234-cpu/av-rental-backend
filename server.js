@@ -1,13 +1,10 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
-app.use(cors());
 app.use(express.json());
-
-const PORT = process.env.PORT || 3000;
 
 // Connessione a MongoDB
 mongoose.connect(process.env.MONGO_URI, {
@@ -17,11 +14,33 @@ mongoose.connect(process.env.MONGO_URI, {
 .then(() => console.log('✅ Connessione a MongoDB riuscita'))
 .catch(err => console.error('❌ Errore MongoDB:', err));
 
+// Modello Equipment
+const equipmentSchema = new mongoose.Schema({
+  name: String,
+  category: String,
+  quantity: Number,
+  imageUrl: String
+});
+
+const Equipment = mongoose.model('Equipment', equipmentSchema);
+
+// Rotta GET /api/equipment
+app.get('/api/equipment', async (req, res) => {
+  try {
+    const items = await Equipment.find();
+    res.json(items);
+  } catch (err) {
+    res.status(500).json({ error: 'Errore nel recupero dati' });
+  }
+});
+
 // Rotta di test
 app.get('/', (req, res) => {
   res.send('Backend AV Rental attivo 🚀');
 });
 
+// Avvio server
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🟢 Server avviato su porta ${PORT}`);
+  console.log(`🚀 Server avviato su http://localhost:${PORT}`);
 });
