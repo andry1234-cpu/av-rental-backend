@@ -68,6 +68,20 @@ app.put('/api/equipment/:id', async (req, res) => {
   }
 });
 
+// Rotta DELETE /api/equipment/:id
+app.delete('/api/equipment/:id', async (req, res) => {
+  try {
+    const deletedItem = await Equipment.findByIdAndDelete(req.params.id);
+    if (!deletedItem) {
+      return res.status(404).json({ error: "Articolo non trovato" });
+    }
+    res.json({ message: "Articolo eliminato con successo" });
+  } catch (err) {
+    console.error("Errore nell'eliminazione:", err);
+    res.status(400).json({ error: "Errore nell'eliminazione dell'oggetto" });
+  }
+});
+
 // Rotta PUT /api/equipment/:id
 app.put('/api/equipment/:id', async (req, res) => {
   try {
