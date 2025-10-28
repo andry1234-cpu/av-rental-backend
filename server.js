@@ -1,11 +1,11 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const path = require('path');
-require('dotenv').config();
 const cors = require('cors');
-app.use(cors());
+require('dotenv').config();
 
-const app = express();
+const app = express(); // ⚠️ Questa riga deve venire prima di app.use()
+
+app.use(cors());
 app.use(express.json());
 
 // Connessione a MongoDB
