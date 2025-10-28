@@ -3,8 +3,9 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
 
-const app = express(); // ⚠️ Questa riga deve venire prima di app.use()
+const app = express();
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 
@@ -32,7 +33,20 @@ app.get('/api/equipment', async (req, res) => {
     const items = await Equipment.find();
     res.json(items);
   } catch (err) {
+    console.error('Errore nel recupero dati:', err);
     res.status(500).json({ error: 'Errore nel recupero dati' });
+  }
+});
+
+// Rotta POST /api/equipment
+app.post('/api/equipment', async (req, res) => {
+  try {
+    const newItem = new Equipment(req.body);
+    const savedItem = await newItem.save();
+    res.status(201).json(savedItem);
+  } catch (err) {
+    console.error('Errore nel salvataggio:', err);
+    res.status(400).json({ error: 'Errore nella creazione dell’oggetto' });
   }
 });
 
