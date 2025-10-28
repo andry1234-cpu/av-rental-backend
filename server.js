@@ -46,7 +46,43 @@ app.post('/api/equipment', async (req, res) => {
     res.status(201).json(savedItem);
   } catch (err) {
     console.error('Errore nel salvataggio:', err);
-    res.status(400).json({ error: 'Errore nella creazione dell’oggetto' });
+    res.status(400).json({ error: "Errore nella creazione dell'oggetto" });
+  }
+});
+
+// Rotta PUT /api/equipment/:id
+app.put('/api/equipment/:id', async (req, res) => {
+  try {
+    const updatedItem = await Equipment.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+    if (!updatedItem) {
+      return res.status(404).json({ error: "Articolo non trovato" });
+    }
+    res.json(updatedItem);
+  } catch (err) {
+    console.error("Errore nell'aggiornamento:", err);
+    res.status(400).json({ error: "Errore nell'aggiornamento dell'oggetto" });
+  }
+});
+
+// Rotta PUT /api/equipment/:id
+app.put('/api/equipment/:id', async (req, res) => {
+  try {
+    const updatedItem = await Equipment.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+    if (!updatedItem) {
+      return res.status(404).json({ error: 'Articolo non trovato' });
+    }
+    res.json(updatedItem);
+  } catch (err) {
+    console.error('Errore nell\'aggiornamento:', err);
+    res.status(400).json({ error: 'Errore nell\'aggiornamento dell\'oggetto' });
   }
 });
 
