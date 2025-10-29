@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Equipment = require('../models/Equipment');
+const Job = require('../models/Job');
 const mongoose = require('mongoose');
 
 // GET /api/equipment
@@ -23,6 +24,58 @@ router.get('/', async (req, res) => {
       error: 'Errore nel recupero dati',
       details: err.message,
       mongoState: mongoose.connection.readyState 
+    });
+  }
+});
+
+// GET /api/equipment/stats/dashboard - Statistiche per la dashboard
+router.get('/stats/dashboard', async (req, res) => {
+  try {
+    // Totale articoli
+    const allEquipment = await Equipment.find();
+    const totalItems = allEquipment.length;
+    
+    // Totale unità in magazzino (quantity - brokenQuantity)
+    const inStockQuantity = allEquipment.reduce((sum, item) => {
+      const available = item.quantity - (item.brokenQuantity || 0);
+      return sum + Math.max(available, 0);
+    }, 0);
+    
+    // Totale unità guaste
+    const brokenQuantity = allEquipment.reduce((sum, item) => sum + (item.brokenQuantity || 0), 0);
+    
+    // Totale unità in utilizzo (su lavori attivi/confirmed)
+    let inUseQuantity = 0;
+    const activeJobs = await Job.find({ status: { $in: ['draft', 'confirmed'] } }).populate('equipment.equipmentId');
+    
+    activeJobs.forEach(job => {
+      if (job.equipment && job.equipment.length > 0) {
+        job.equipment.forEach(eq => {
+          inUseQuantity += eq.quantity || 0;
+        });
+      }
+    });
+    
+    // Conteggio categorie
+    const categories = [...new Set(allEquipment.map(item => item.category))].length;
+    
+    // Conteggio lavori attivi
+    const activeJobsCount = activeJobs.length;
+    
+    res.json({
+      totalItems,
+      totalCategories: categories,
+      inStock: inStockQuantity,
+      inUse: inUseQuantity,
+      broken: brokenQuantity,
+      activeJobs: activeJobsCount,
+      equipment: allEquipment
+    });
+  } catch (err) {
+    console.error('Errore nel calcolo statistiche dashboard:', err);
+    res.status(500).json({ 
+      error: 'Errore nel calcolo statistiche',
+      details: err.message 
     });
   }
 });
