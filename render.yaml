@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: av-rental-backend
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: MONGO_URI
+        sync: false
+    autoDeploy: true
+    branch: main
