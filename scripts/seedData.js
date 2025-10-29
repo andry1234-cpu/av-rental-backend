@@ -32,6 +32,12 @@ const exampleData = [
     category: 'Strutture',
     quantity: 10,
     imageUrl: 'https://www.globaltruss.com/images/products/F34.jpg'
+  },
+  {
+    name: 'Ubiquiti EdgeSwitch 48',
+    category: 'IT e Reti',
+    quantity: 2,
+    imageUrl: 'https://dl.ubnt.com/marketing_automation/EdgeSwitch/ES-48-US-02.png'
   }
 ];
 
