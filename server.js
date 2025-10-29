@@ -249,6 +249,30 @@ app.get('/', (req, res) => {
   res.send('Backend AV Rental attivo 🚀');
 });
 
+// Manutenzione: correggi categorie errate
+app.post('/api/maintenance/fix-categories', async (req, res) => {
+  try {
+    const fixes = [
+      { name: 'Shure Beta 58A', category: 'Audio' },
+      { name: 'Yamaha HS8', category: 'Audio' },
+      { name: 'Panasonic PT-DZ21K', category: 'Video' }
+    ];
+    
+    let updateCount = 0;
+    for (let fix of fixes) {
+      const result = await Equipment.updateMany(
+        { name: fix.name },
+        { category: fix.category }
+      );
+      updateCount += result.modifiedCount;
+    }
+    
+    res.json({ message: 'Categorias corrette', updatedCount: updateCount });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Avvio server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
