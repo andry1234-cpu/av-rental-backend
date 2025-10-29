@@ -44,7 +44,7 @@ node scripts/importFromCSV.js
 ### Output atteso
 
 ```
-Connessione a MongoDB: mongodb+srv://user:pass@cluster.mongodb.net/av-rental
+Connessione a MongoDB: [URI da .env]
 Connesso a MongoDB
 Equipment da importare: 10
 ✓ Microfono Shure SM7B (Audio) - Qty: 2
