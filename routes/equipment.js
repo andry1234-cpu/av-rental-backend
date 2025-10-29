@@ -31,12 +31,12 @@ router.get('/', async (req, res) => {
 // GET /api/equipment/stats/dashboard - Statistiche per la dashboard
 router.get('/stats/dashboard', async (req, res) => {
   try {
-    // Totale articoli
+    // Totale unità in magazzino (quantity - brokenQuantity) per tutti gli articoli
     const allEquipment = await Equipment.find();
     const totalItems = allEquipment.length;
     
-    // Totale unità in magazzino (quantity - brokenQuantity)
-    const inStockQuantity = allEquipment.reduce((sum, item) => {
+    // Totale quantità in magazzino (somma quantity - brokenQuantity)
+    const totalQuantity = allEquipment.reduce((sum, item) => {
       const available = item.quantity - (item.brokenQuantity || 0);
       return sum + Math.max(available, 0);
     }, 0);
@@ -48,12 +48,26 @@ router.get('/stats/dashboard', async (req, res) => {
     let inUseQuantity = 0;
     const activeJobs = await Job.find({ status: { $in: ['draft', 'confirmed'] } }).populate('equipment.equipmentId');
     
+    // Mappa equipmentId -> quantità in utilizzo
+    const equipmentInUseMap = {};
     activeJobs.forEach(job => {
       if (job.equipment && job.equipment.length > 0) {
         job.equipment.forEach(eq => {
-          inUseQuantity += eq.quantity || 0;
+          const eqId = eq.equipmentId ? eq.equipmentId._id.toString() : null;
+          if (eqId) {
+            equipmentInUseMap[eqId] = (equipmentInUseMap[eqId] || 0) + (eq.quantity || 0);
+            inUseQuantity += eq.quantity || 0;
+          }
         });
       }
+    });
+    
+    // In magazzino = quantità disponibili NON assegnate a lavori attivi
+    let inStockQuantity = 0;
+    allEquipment.forEach(item => {
+      const available = item.quantity - (item.brokenQuantity || 0);
+      const inUse = equipmentInUseMap[item._id.toString()] || 0;
+      inStockQuantity += Math.max(available - inUse, 0);
     });
     
     // Conteggio categorie
@@ -63,7 +77,8 @@ router.get('/stats/dashboard', async (req, res) => {
     const activeJobsCount = activeJobs.length;
     
     res.json({
-      totalItems,
+      totalItems: totalQuantity,
+      totalArticles: totalItems,
       totalCategories: categories,
       inStock: inStockQuantity,
       inUse: inUseQuantity,
