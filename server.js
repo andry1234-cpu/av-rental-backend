@@ -3,6 +3,9 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
 
+// Importa il modello Equipment
+const Equipment = require('./models/Equipment');
+
 const app = express();
 
 // Middleware
@@ -62,20 +65,39 @@ const equipmentRoutes = require('./routes/equipment');
 // Endpoint di diagnostica
 app.get('/api/status', async (req, res) => {
   try {
+    // Verifica stato connessione database
     const dbStatus = mongoose.connection.readyState === 1 ? 'connesso' : 'disconnesso';
-    const documentsCount = await Equipment.countDocuments();
-    const categories = await Equipment.distinct('category');
+    let documentsCount = 0;
+    let categories = [];
+    let dbError = null;
+
+    // Se il database è connesso, prova a recuperare le statistiche
+    if (dbStatus === 'connesso') {
+      try {
+        documentsCount = await Equipment.countDocuments();
+        categories = await Equipment.distinct('category');
+      } catch (err) {
+        dbError = err.message;
+      }
+    }
     
     res.json({
       status: 'online',
+      server: {
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || 'development'
+      },
       database: {
         status: dbStatus,
-        documentsCount,
-        categories
-      },
-      timestamp: new Date().toISOString()
+        error: dbError,
+        stats: {
+          documentsCount,
+          categories
+        }
+      }
     });
   } catch (error) {
+    console.error('Errore endpoint status:', error);
     res.status(500).json({
       status: 'error',
       error: error.message,
