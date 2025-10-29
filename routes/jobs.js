@@ -230,4 +230,17 @@ router.get('/stats/today', async (req, res) => {
   }
 });
 
+// DELETE tutti i lavori (per pulizia test)
+router.delete('/admin/delete-all', async (req, res) => {
+  try {
+    const result = await Job.deleteMany({});
+    res.json({ 
+      message: 'Tutti i lavori sono stati eliminati',
+      deletedCount: result.deletedCount
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;
