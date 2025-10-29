@@ -198,4 +198,36 @@ router.get('/equipment/list', async (req, res) => {
   }
 });
 
+// GET lavori attivi oggi
+router.get('/stats/today', async (req, res) => {
+  try {
+    // Calcola inizio e fine della giornata odierna
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    // Trova lavori che hanno almeno un giorno di overlap con oggi
+    // Un lavoro è attivo oggi se: startDate <= oggi AND endDate >= oggi
+    const activeJobsToday = await Job.find({
+      status: { $in: ['draft', 'confirmed'] },
+      startDate: { $lt: tomorrow },
+      endDate: { $gte: today }
+    })
+      .populate('responsibile')
+      .populate('personnel')
+      .populate('materials')
+      .populate('equipment.equipmentId')
+      .sort({ startDate: 1 });
+    
+    res.json({
+      activeJobsToday: activeJobsToday.length,
+      jobs: activeJobsToday
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;
