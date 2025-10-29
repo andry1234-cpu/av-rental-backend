@@ -154,6 +154,36 @@ const exampleData = [
   }
 ];
 
+// Se lo script viene eseguito direttamente
+if (require.main === module) {
+  // Connessione a MongoDB
+  mongoose.connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
+  .then(async () => {
+    console.log('✅ Connessione a MongoDB riuscita');
+    
+    try {
+      // Rimuove i dati esistenti
+      await Equipment.deleteMany({});
+      console.log('Database pulito');
+
+      // Inserisce i nuovi dati
+      await Equipment.insertMany(exampleData);
+      console.log('Dati di esempio inseriti con successo');
+    } catch (err) {
+      console.error('Errore nell\'inserimento dei dati:', err);
+    } finally {
+      mongoose.disconnect();
+    }
+  })
+  .catch(err => console.error('❌ Errore MongoDB:', err));
+}
+
+// Esporta i dati di esempio per l'uso in altri file
+module.exports = { exampleData };
+
 // Connessione a MongoDB
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,

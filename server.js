@@ -14,7 +14,25 @@ mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
-.then(() => console.log('✅ Connessione a MongoDB riuscita! [Auto-deploy test]'))
+.then(async () => {
+  console.log('✅ Connessione a MongoDB riuscita!');
+  
+  // Verifica se ci sono dati nel database
+  const count = await Equipment.countDocuments();
+  if (count === 0) {
+    console.log('Database vuoto, carico i dati di esempio...');
+    // Importa i dati di esempio
+    const { exampleData } = require('./scripts/seedData');
+    try {
+      await Equipment.insertMany(exampleData);
+      console.log('✅ Dati di esempio caricati con successo');
+    } catch (err) {
+      console.error('❌ Errore nel caricamento dei dati di esempio:', err);
+    }
+  } else {
+    console.log(`Database contiene già ${count} articoli`);
+  }
+})
 .catch(err => console.error('❌ Errore MongoDB:', err));
 
 // Import delle routes
