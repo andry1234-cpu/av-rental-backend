@@ -5,6 +5,7 @@ const equipmentSchema = new mongoose.Schema({
   category: String,
   quantity: Number,
   imageUrl: String,
+  description: String,
   weight: {
     value: Number,
     unit: {
@@ -30,7 +31,22 @@ const equipmentSchema = new mongoose.Schema({
       enum: ['W', 'kW'],
       default: 'W'
     }
-  }
+  },
+  voltage: {
+    value: Number,
+    unit: {
+      type: String,
+      enum: ['V', 'mV'],
+      default: 'V'
+    }
+  },
+  technicalSpecs: {
+    type: Map,
+    of: String
+  },
+  brand: String,
+  model: String,
+  year: Number
 });
 
 module.exports = mongoose.model('Equipment', equipmentSchema);

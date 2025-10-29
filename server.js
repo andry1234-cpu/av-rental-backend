@@ -17,25 +17,15 @@ mongoose.connect(process.env.MONGO_URI, {
 .then(() => console.log('✅ Connessione a MongoDB riuscita! [Auto-deploy test]'))
 .catch(err => console.error('❌ Errore MongoDB:', err));
 
-// Modello Equipment
-const equipmentSchema = new mongoose.Schema({
-  name: String,
-  category: String,
-  quantity: Number,
-  imageUrl: String
-});
+// Import delle routes
+const equipmentRoutes = require('./routes/equipment');
 
-const Equipment = mongoose.model('Equipment', equipmentSchema);
+// Utilizzo delle routes
+app.use('/api/equipment', equipmentRoutes);
 
-// Rotta GET /api/equipment
-app.get('/api/equipment', async (req, res) => {
-  try {
-    const items = await Equipment.find();
-    res.json(items);
-  } catch (err) {
-    console.error('Errore nel recupero dati:', err);
-    res.status(500).json({ error: 'Errore nel recupero dati' });
-  }
+// Rotta principale per verifica server
+app.get('/', (req, res) => {
+  res.json({ message: 'Backend AV Rental attivo 🚀' });
 });
 
 // Rotta POST /api/equipment
