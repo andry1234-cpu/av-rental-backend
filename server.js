@@ -3,8 +3,23 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
 
+// Configurazione logging dettagliato
+const debug = (message, ...args) => {
+  console.log(`[${new Date().toISOString()}] ${message}`, ...args);
+};
+const errorLog = (message, error) => {
+  console.error(`[${new Date().toISOString()}] ${message}:`, error);
+  console.error('Stack:', error.stack);
+};
+
 // Importa il modello Equipment
-const Equipment = require('./models/Equipment');
+let Equipment;
+try {
+  Equipment = require('./models/Equipment');
+  debug('Modello Equipment caricato con successo');
+} catch (error) {
+  errorLog('Errore nel caricamento del modello Equipment', error);
+}
 
 const app = express();
 
@@ -12,8 +27,57 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Endpoint di test per lo stato del database
+app.get('/api/status', async (req, res) => {
+  try {
+    const status = {
+      mongoConnected: mongoose.connection.readyState === 1,
+      mongoState: mongoose.connection.readyState,
+      mongoUri: process.env.MONGO_URI ? 'Configurato' : 'Non configurato',
+      collections: [],
+      documentsCount: 0
+    };
+
+    if (status.mongoConnected) {
+      status.collections = await mongoose.connection.db.listCollections().toArray();
+      status.documentsCount = await Equipment.countDocuments();
+    }
+
+    res.json(status);
+  } catch (err) {
+    res.status(500).json({
+      error: 'Errore nel controllo stato',
+      details: err.message,
+      stack: err.stack
+    });
+  }
+});
+
 // Log della connessione MongoDB
 console.log('Tentativo di connessione a MongoDB...');
+console.log('MONGO_URI configurato:', process.env.MONGO_URI ? 'Sì' : 'No');
+
+// Configurazione debug mongoose
+mongoose.set('debug', true);
+
+// Funzione di pulizia database
+async function cleanDatabase() {
+  console.log('Inizio pulizia database...');
+  const documents = await Equipment.find({});
+  console.log(`Trovati ${documents.length} documenti da pulire`);
+
+  for (const doc of documents) {
+    const cleanDoc = {
+      name: doc.name,
+      category: doc.category,
+      quantity: doc.quantity,
+      imageUrl: doc.imageUrl
+    };
+    await Equipment.findByIdAndUpdate(doc._id, cleanDoc);
+    console.log(`Pulito documento: ${doc.name}`);
+  }
+  console.log('✅ Pulizia completata con successo');
+}
 
 // Connessione a MongoDB
 mongoose.connect(process.env.MONGO_URI, {
@@ -22,6 +86,22 @@ mongoose.connect(process.env.MONGO_URI, {
 })
 .then(async () => {
   console.log('✅ Connessione a MongoDB riuscita!');
+  console.log('Stato connessione:', mongoose.connection.readyState);
+  
+  // Verifica se ci sono dati nel database
+  const count = await Equipment.countDocuments();
+  if (count === 0) {
+    console.log('Database vuoto, carico i dati di esempio...');
+    const { exampleData } = require('./scripts/seedData');
+    try {
+      await Equipment.insertMany(exampleData);
+      console.log('✅ Dati di esempio caricati con successo');
+    } catch (err) {
+      console.error('❌ Errore nel caricamento dei dati di esempio:', err);
+    }
+  } else {
+    console.log(`Database contiene ${count} articoli`);
+  }
   
   try {
     // Verifica lo stato del database
@@ -41,20 +121,6 @@ mongoose.connect(process.env.MONGO_URI, {
     }
   } catch (dbError) {
     console.error('Errore nella verifica del database:', dbError);
-  }
-  const count = await Equipment.countDocuments();
-  if (count === 0) {
-    console.log('Database vuoto, carico i dati di esempio...');
-    // Importa i dati di esempio
-    const { exampleData } = require('./scripts/seedData');
-    try {
-      await Equipment.insertMany(exampleData);
-      console.log('✅ Dati di esempio caricati con successo');
-    } catch (err) {
-      console.error('❌ Errore nel caricamento dei dati di esempio:', err);
-    }
-  } else {
-    console.log(`Database contiene già ${count} articoli`);
   }
 })
 .catch(err => console.error('❌ Errore MongoDB:', err));
