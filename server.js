@@ -127,6 +127,7 @@ mongoose.connect(process.env.MONGO_URI, {
 
 // Import delle routes
 const equipmentRoutes = require('./routes/equipment');
+const jobsRoutes = require('./routes/jobs');
 
 // Endpoint di diagnostica
 app.get('/api/status', async (req, res) => {
@@ -174,6 +175,7 @@ app.get('/api/status', async (req, res) => {
 
 // Utilizzo delle routes
 app.use('/api/equipment', equipmentRoutes);
+app.use('/api/jobs', jobsRoutes);
 
 // Rotta principale per verifica server
 app.get('/', (req, res) => {
