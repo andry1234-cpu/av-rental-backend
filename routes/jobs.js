@@ -57,7 +57,10 @@ router.post('/', async (req, res) => {
     });
     
     const saved = await newJob.save();
-    const populated = await saved.populate('responsibile').populate('personnel').populate('materials');
+    const populated = await Job.findById(saved._id)
+      .populate('responsibile')
+      .populate('personnel')
+      .populate('materials');
     
     res.status(201).json(populated);
   } catch (error) {
