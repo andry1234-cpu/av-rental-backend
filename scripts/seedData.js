@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
-const Equipment = require('./models/Equipment');
+const Equipment = require('../models/Equipment');
 
 const exampleData = [
+  // AUDIO
   {
     name: 'Shure SM58',
     category: 'Audio',
@@ -59,6 +60,96 @@ const exampleData = [
       frequencyRange: '45 Hz - 20 kHz',
       coverage: '75° Axisymmetric',
       inputs: '2x XLR-1/4" combo'
+    }
+  },
+  // VIDEO
+  {
+    name: 'Sony PXW-Z190',
+    category: 'Video',
+    quantity: 2,
+    imageUrl: 'https://pro.sony/s3/2018/04/16020225/pxw-z190v_4k_main.jpg',
+    description: 'Videocamera professionale 4K',
+    weight: {
+      value: 2.3,
+      unit: 'kg'
+    },
+    dimensions: {
+      length: 28.5,
+      width: 18.9,
+      height: 15.3,
+      unit: 'cm'
+    },
+    powerConsumption: {
+      value: 18,
+      unit: 'W'
+    },
+    brand: 'Sony',
+    model: 'PXW-Z190',
+    technicalSpecs: {
+      sensor: '3-CMOS 1/3"',
+      resolution: '4K (3840x2160)',
+      zoom: '25x ottico',
+      storage: 'Dual SD card slots'
+    }
+  },
+  // LUCI
+  {
+    name: 'Aputure 300d III',
+    category: 'Luci',
+    quantity: 3,
+    imageUrl: 'https://www.aputure.com/wp-content/uploads/2019/09/300diii_1.png',
+    description: 'Illuminatore LED daylight professionale',
+    weight: {
+      value: 4.8,
+      unit: 'kg'
+    },
+    dimensions: {
+      length: 36.8,
+      width: 28.5,
+      height: 21.6,
+      unit: 'cm'
+    },
+    powerConsumption: {
+      value: 350,
+      unit: 'W'
+    },
+    voltage: {
+      value: 220,
+      unit: 'V'
+    },
+    brand: 'Aputure',
+    model: '300d III',
+    technicalSpecs: {
+      outputPower: '70,000 lux @ 1m',
+      colorTemp: '5500K ±200K',
+      dimming: '0-100%',
+      control: 'DMX / Wireless'
+    }
+  },
+  // STRUTTURE
+  {
+    name: 'Global Truss F34',
+    category: 'Strutture',
+    quantity: 10,
+    imageUrl: 'https://www.globaltruss.com/images/products/F34.jpg',
+    description: 'Traliccio in alluminio professionale',
+    weight: {
+      value: 7.2,
+      unit: 'kg'
+    },
+    dimensions: {
+      length: 200,
+      width: 29,
+      height: 29,
+      unit: 'cm'
+    },
+    brand: 'Global Truss',
+    model: 'F34',
+    technicalSpecs: {
+      material: 'Alluminio EN-AW 6082 T6',
+      carico: 'Max 750kg/m',
+      connettori: 'Conical',
+      tubo: '50mm x 2mm'
     }
   }
 ];
