@@ -182,4 +182,17 @@ router.post('/materials/create', async (req, res) => {
   }
 });
 
+// ===== EQUIPMENT (from magazzino) =====
+
+// GET equipment dalla lista di magazzino
+router.get('/equipment/list', async (req, res) => {
+  try {
+    const Equipment = require('../models/Equipment');
+    const equipment = await Equipment.find().sort({ name: 1 });
+    res.json(equipment);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;
