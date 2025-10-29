@@ -9,6 +9,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Log della connessione MongoDB
+console.log('Tentativo di connessione a MongoDB...');
+
 // Connessione a MongoDB
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
@@ -17,7 +20,25 @@ mongoose.connect(process.env.MONGO_URI, {
 .then(async () => {
   console.log('✅ Connessione a MongoDB riuscita!');
   
-  // Verifica se ci sono dati nel database
+  try {
+    // Verifica lo stato del database
+    const collections = await mongoose.connection.db.listCollections().toArray();
+    console.log('Collections presenti:', collections.map(c => c.name));
+    
+    // Verifica i dati esistenti
+    const documentsCount = await Equipment.countDocuments();
+    console.log(`Numero di articoli nel database: ${documentsCount}`);
+    
+    if (documentsCount > 0) {
+      const esempio = await Equipment.findOne();
+      console.log('Schema documento:', Object.keys(esempio._doc));
+      console.log('Categorie presenti:', await Equipment.distinct('category'));
+    } else {
+      console.log('⚠️ Database vuoto');
+    }
+  } catch (dbError) {
+    console.error('Errore nella verifica del database:', dbError);
+  }
   const count = await Equipment.countDocuments();
   if (count === 0) {
     console.log('Database vuoto, carico i dati di esempio...');
@@ -37,6 +58,31 @@ mongoose.connect(process.env.MONGO_URI, {
 
 // Import delle routes
 const equipmentRoutes = require('./routes/equipment');
+
+// Endpoint di diagnostica
+app.get('/api/status', async (req, res) => {
+  try {
+    const dbStatus = mongoose.connection.readyState === 1 ? 'connesso' : 'disconnesso';
+    const documentsCount = await Equipment.countDocuments();
+    const categories = await Equipment.distinct('category');
+    
+    res.json({
+      status: 'online',
+      database: {
+        status: dbStatus,
+        documentsCount,
+        categories
+      },
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
 
 // Utilizzo delle routes
 app.use('/api/equipment', equipmentRoutes);
