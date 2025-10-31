@@ -2,9 +2,9 @@ const mongoose = require('mongoose');
 
 const personnelSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  surname: { type: String },
+  surname: { type: String, required: true },
   role: { type: String }, // Es: Tecnico, Operatore, Assistente
-  phone: { type: String },
+  phone: { type: String, required: true },
   email: { type: String },
   createdAt: { type: Date, default: Date.now }
 }, {

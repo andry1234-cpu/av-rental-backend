@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 
 const responsibileSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  surname: { type: String },
-  phone: { type: String },
+  surname: { type: String, required: true },
+  phone: { type: String, required: true },
   email: { type: String },
   createdAt: { type: Date, default: Date.now }
 }, {
