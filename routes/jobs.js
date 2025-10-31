@@ -123,9 +123,9 @@ router.get('/responsibili/list', async (req, res) => {
 // POST nuovo responsabile
 router.post('/responsibili/create', async (req, res) => {
   try {
-    const { name, phone, email } = req.body;
+    const { name, surname, phone, email } = req.body;
     
-    const newResponsibile = new Responsibile({ name, phone, email });
+    const newResponsibile = new Responsibile({ name, surname, phone, email });
     const saved = await newResponsibile.save();
     
     res.status(201).json(saved);
@@ -141,10 +141,10 @@ router.post('/responsibili/create', async (req, res) => {
 // PUT aggiorna responsabile
 router.put('/responsibili/:id', async (req, res) => {
   try {
-    const { name, phone, email } = req.body;
+    const { name, surname, phone, email } = req.body;
     const updated = await Responsibile.findByIdAndUpdate(
       req.params.id,
-      { name, phone, email },
+      { name, surname, phone, email },
       { new: true }
     );
     if (!updated) return res.status(404).json({ error: 'Responsabile non trovato' });
@@ -190,9 +190,9 @@ router.get('/personnel/categories', async (req, res) => {
 // POST nuovo personale
 router.post('/personnel/create', async (req, res) => {
   try {
-    const { name, role, phone, email } = req.body;
+    const { name, surname, role, phone, email } = req.body;
     
-    const newPersonnel = new Personnel({ name, role, phone, email });
+    const newPersonnel = new Personnel({ name, surname, role, phone, email });
     const saved = await newPersonnel.save();
     
     res.status(201).json(saved);
@@ -208,10 +208,10 @@ router.post('/personnel/create', async (req, res) => {
 // PUT aggiorna personale
 router.put('/personnel/:id', async (req, res) => {
   try {
-    const { name, role, phone, email } = req.body;
+    const { name, surname, role, phone, email } = req.body;
     const updated = await Personnel.findByIdAndUpdate(
       req.params.id,
-      { name, role, phone, email },
+      { name, surname, role, phone, email },
       { new: true }
     );
     if (!updated) return res.status(404).json({ error: 'Personale non trovato' });

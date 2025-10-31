@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 
 const personnelSchema = new mongoose.Schema({
-  name: { type: String, required: true, unique: true },
+  name: { type: String, required: true },
+  surname: { type: String },
   role: { type: String }, // Es: Tecnico, Operatore, Assistente
   phone: { type: String },
   email: { type: String },
