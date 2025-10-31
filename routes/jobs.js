@@ -307,4 +307,33 @@ router.get('/stats/today', async (req, res) => {
   }
 });
 
+// GET lavori per un mese specifico (calendario)
+router.get('/calendar/:year/:month', async (req, res) => {
+  try {
+    const { year, month } = req.params;
+    
+    // Crea date inizio e fine mese
+    const startOfMonth = new Date(year, month - 1, 1); // month - 1 perché JS usa 0-11
+    const endOfMonth = new Date(year, month, 0, 23, 59, 59); // Ultimo giorno del mese
+    
+    const jobs = await Job.find({
+      status: { $in: ['draft', 'confirmed', 'completed'] },
+      $or: [
+        // Lavoro inizia nel mese
+        { startDate: { $gte: startOfMonth, $lte: endOfMonth } },
+        // Lavoro finisce nel mese
+        { endDate: { $gte: startOfMonth, $lte: endOfMonth } },
+        // Lavoro copre l'intero mese
+        { startDate: { $lt: startOfMonth }, endDate: { $gt: endOfMonth } }
+      ]
+    })
+      .populate('responsibile', 'name surname')
+      .sort({ startDate: 1 });
+    
+    res.json(jobs);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;
