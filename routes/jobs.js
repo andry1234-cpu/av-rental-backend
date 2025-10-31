@@ -138,6 +138,33 @@ router.post('/responsibili/create', async (req, res) => {
   }
 });
 
+// PUT aggiorna responsabile
+router.put('/responsibili/:id', async (req, res) => {
+  try {
+    const { name, phone, email } = req.body;
+    const updated = await Responsibile.findByIdAndUpdate(
+      req.params.id,
+      { name, phone, email },
+      { new: true }
+    );
+    if (!updated) return res.status(404).json({ error: 'Responsabile non trovato' });
+    res.json(updated);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// DELETE responsabile
+router.delete('/responsibili/:id', async (req, res) => {
+  try {
+    const deleted = await Responsibile.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ error: 'Responsabile non trovato' });
+    res.json({ message: 'Responsabile eliminato con successo' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // ===== PERSONNEL =====
 
 // GET personale
@@ -175,6 +202,33 @@ router.post('/personnel/create', async (req, res) => {
     } else {
       res.status(500).json({ error: error.message });
     }
+  }
+});
+
+// PUT aggiorna personale
+router.put('/personnel/:id', async (req, res) => {
+  try {
+    const { name, role, phone, email } = req.body;
+    const updated = await Personnel.findByIdAndUpdate(
+      req.params.id,
+      { name, role, phone, email },
+      { new: true }
+    );
+    if (!updated) return res.status(404).json({ error: 'Personale non trovato' });
+    res.json(updated);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// DELETE personale
+router.delete('/personnel/:id', async (req, res) => {
+  try {
+    const deleted = await Personnel.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ error: 'Personale non trovato' });
+    res.json({ message: 'Personale eliminato con successo' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
