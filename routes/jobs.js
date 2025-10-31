@@ -150,6 +150,16 @@ router.get('/personnel/list', async (req, res) => {
   }
 });
 
+// GET categorie personale (role unici)
+router.get('/personnel/categories', async (req, res) => {
+  try {
+    const categories = await Personnel.distinct('role');
+    res.json(categories.filter(c => c)); // Filtra valori vuoti
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // POST nuovo personale
 router.post('/personnel/create', async (req, res) => {
   try {
